@@ -16,23 +16,24 @@ export default function Register() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
-      await register(form.name, form.email, form.password);
-      navigate('/dashboard');
-    } catch (err) {
-      const msg = err.response?.data?.message;
-      if (msg === 'Email already in use') {
-        setError('Este email ya está registrado.');
-      } else {
-        setError('Ocurrió un error. Intenta de nuevo.');
-      }
-    } finally {
-      setLoading(false);
+  e.preventDefault();
+  setError('');
+  setLoading(true);
+  try {
+    await register(form.name, form.email, form.password);
+    navigate('/dashboard');
+  } catch (err) {
+    if (err.code === 'ERR_NETWORK' || !err.response) {
+      setError('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.');
+    } else if (err.response?.data?.message === 'Email already in use') {
+      setError('Este email ya está registrado.');
+    } else {
+      setError('Ocurrió un error inesperado. Intenta de nuevo.');
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: 'var(--bg-base)' }}>

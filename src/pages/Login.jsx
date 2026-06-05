@@ -16,18 +16,24 @@ export default function Login() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
-      await login(form.email, form.password);
-      navigate('/dashboard');
-    } catch (err) {
+  e.preventDefault();
+  setError('');
+  setLoading(true);
+  try {
+    await login(form.email, form.password);
+    navigate('/dashboard');
+  } catch (err) {
+    if (err.code === 'ERR_NETWORK' || !err.response) {
+      setError('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.');
+    } else if (err.response?.status === 401) {
       setError('Credenciales incorrectas. Intenta de nuevo.');
-    } finally {
-      setLoading(false);
+    } else {
+      setError('Ocurrió un error inesperado. Intenta de nuevo.');
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: 'var(--bg-base)' }}>
